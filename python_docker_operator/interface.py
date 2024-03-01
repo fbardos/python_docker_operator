@@ -38,11 +38,6 @@ class EnvironmentInterface:
         env_name = self.env_name(variable_name)
         return {env_name: str(value)}
 
-    @property
-    @abstractmethod
-    def dict_all(self) -> Dict[str, str]:
-        pass
-
 
 class ContextParam(Enum):
     DATA_INTERVAL_START = 'data_interval_start'
@@ -76,11 +71,10 @@ class ContextInterface(EnvironmentInterface):
     def dict_data_interval_end(self) -> Dict[str, str]:
         return self.generate_env(ContextParam.DATA_INTERVAL_END.name, self._context['data_interval_end'])
     
-    @property
-    def dict_all(self) -> Dict[str, str]:
+    def dict_all(self, context: Context) -> Dict[str, str]:
         return {
-            **self.dict_data_interval_start,
-            **self.dict_data_interval_end,
+            **self.with_context(context).dict_data_interval_start,
+            **self.with_context(context).dict_data_interval_end,
         }
 
 
