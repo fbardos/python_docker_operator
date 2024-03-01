@@ -1,5 +1,8 @@
+from __future__ import annotations
+
 import logging
 import os
+from abc import abstractmethod
 from enum import Enum
 from typing import Any, Dict
 
@@ -35,6 +38,11 @@ class EnvironmentInterface:
         env_name = self.env_name(variable_name)
         return {env_name: str(value)}
 
+    @property
+    @abstractmethod
+    def dict_all(self) -> Dict[str, str]:
+        pass
+
 
 class ContextParam(Enum):
     DATA_INTERVAL_START = 'data_interval_start'
@@ -47,10 +55,10 @@ class ContextInterface(EnvironmentInterface):
     def __init__(self):
         self._env_middle = 'CONTEXT'
 
-    @property
-    def context(self) -> Context:
+    def with_context(self, context: Context) -> ContextInterface:
         """Can only work when executed inside DAG context."""
-        return get_current_context()
+        self._context = context
+        return self
 
     @property
     def env_data_interval_start(self) -> str:
@@ -62,11 +70,18 @@ class ContextInterface(EnvironmentInterface):
 
     @property
     def dict_data_interval_start(self) -> Dict[str, str]:
-        return self.generate_env(ContextParam.DATA_INTERVAL_START.name, self.context['data_interval_start'])
+        return self.generate_env(ContextParam.DATA_INTERVAL_START.name, self._context['data_interval_start'])
 
     @property
     def dict_data_interval_end(self) -> Dict[str, str]:
-        return self.generate_env(ContextParam.DATA_INTERVAL_END.name, self.context['data_interval_end'])
+        return self.generate_env(ContextParam.DATA_INTERVAL_END.name, self._context['data_interval_end'])
+    
+    @property
+    def dict_all(self) -> Dict[str, str]:
+        return {
+            **self.dict_data_interval_start,
+            **self.dict_data_interval_end,
+        }
 
 
 class ConnectionParam(Enum):

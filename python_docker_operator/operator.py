@@ -3,7 +3,7 @@ from typing import List, Optional
 import datetime as dt
 
 from airflow.providers.docker.operators.docker import DockerOperator
-from python_docker_operator.interface import ConnectionInterface
+from python_docker_operator.interface import ConnectionInterface, ContextInterface
 
 
 # TODO: WIP, write a custom operator with:
@@ -66,6 +66,18 @@ class PythonDockerOperator(DockerOperator):
         # TODO: Add handling for context variables with ContextInterface
         
         super().__init__(*args, **kwargs)
+
+    def execute(self, context):
+
+        # Context is not available during __init__, but can be accessed during execute
+        # So, in order to pass context variables as environment variables, we need to
+        # override the execute method, and add the context variables to the environment
+        self.environment = {
+            **self.environment,
+            **ContextInterface().dict_all,
+        }
+
+        super().execute(context)
     
 
 
