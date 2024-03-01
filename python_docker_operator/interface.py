@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import datetime as dt
 import logging
 import os
 from abc import abstractmethod
@@ -7,7 +8,6 @@ from enum import Enum
 from typing import Any, Dict
 
 from airflow.models import Connection
-from airflow.operators.python import get_current_context
 from airflow.utils.context import Context
 from pymongo import MongoClient
 from pymongo.database import Database
@@ -56,12 +56,12 @@ class ContextInterface(EnvironmentInterface):
         return self
 
     @property
-    def env_data_interval_start(self) -> str:
-        return self.read_env(ContextParam.DATA_INTERVAL_START.name)
+    def env_data_interval_start(self) -> dt.datetime:
+        return dt.datetime.fromisoformat(self.read_env(ContextParam.DATA_INTERVAL_START.name))
 
     @property
-    def env_data_interval_end(self) -> str:
-        return self.read_env(ContextParam.DATA_INTERVAL_END.name)
+    def env_data_interval_end(self) -> dt.datetime:
+        return dt.datetime.fromisoformat(self.read_env(ContextParam.DATA_INTERVAL_END.name))
 
     @property
     def dict_data_interval_start(self) -> Dict[str, str]:
