@@ -74,7 +74,7 @@ class PythonDockerOperator(DockerOperator):
         # override the execute method, and add the context variables to the environment
         self.environment = {
             **self.environment,
-            **ContextInterface().dict_all,
+            **ContextInterface().dict_all(context),
         }
 
         super().execute(context)
