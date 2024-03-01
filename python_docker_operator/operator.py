@@ -50,9 +50,9 @@ class PythonDockerOperator(DockerOperator):
         ### Handling for custom class attributes
         # Prepare command
         if custom_cmd_args:
-            kwargs['commmand'] = list(filter(None,['python', custom_file_path, *custom_cmd_args]))
+            kwargs['command'] = list(filter(None,['python', custom_file_path, *custom_cmd_args]))
         else:
-            kwargs['commmand'] = ['python', custom_file_path]
+            kwargs['command'] = ['python', custom_file_path]
         
         # Build environment variables, according to provided connection_ids
         # Can later be readed by the python script, when airflow_custom_docker

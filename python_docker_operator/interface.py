@@ -87,7 +87,7 @@ class ConnectionInterface(EnvironmentInterface):
         self._env_middle = connection_id
 
     @property
-    def conection(self) -> Connection:
+    def connection(self) -> Connection:
         """Can only work when executed inside DAG context."""
         return Connection.get_connection_from_secrets(self.connection_id)
 
