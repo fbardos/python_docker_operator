@@ -31,6 +31,9 @@ class PythonDockerOperator(DockerOperator):
         them as environment variables to the docker container.
 
     """
+    ui_color: str = '#1D63ED'
+    ui_fgcolor: str = '#E5F2FC'
+
     def __init__(
         self,
         auto_remove: str = 'success',
