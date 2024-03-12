@@ -53,7 +53,7 @@ class PythonDockerOperator(DockerOperator):
             kwargs['command'] = list(filter(None,['python', custom_file_path, *custom_cmd_args]))
         else:
             kwargs['command'] = ['python', custom_file_path]
-        
+
         # Build environment variables, according to provided connection_ids
         # Can later be readed by the python script, when airflow_custom_docker
         if custom_connection_ids:
@@ -62,9 +62,8 @@ class PythonDockerOperator(DockerOperator):
                     **kwargs.get('environment', {}),
                     **ConnectionInterface(connection_id).dict_all,
                 }
-        
-        # TODO: Add handling for context variables with ContextInterface
-        
+
+        # Finally, call DockerOperator's __init__ method
         super().__init__(*args, **kwargs)
 
     def execute(self, context):
