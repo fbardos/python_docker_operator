@@ -6,9 +6,6 @@ from airflow.providers.docker.operators.docker import DockerOperator
 from python_docker_operator.interface import ConnectionInterface, ContextInterface
 
 
-# TODO: WIP, write a custom operator with:
-# - custom docker image
-# - passing of the correct environment variables
 class PythonDockerOperator(DockerOperator):
     """ Custom Docker Operator for easier usage with airflow
 
