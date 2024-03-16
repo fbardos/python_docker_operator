@@ -11,6 +11,7 @@ from airflow.models import Connection
 from airflow.utils.context import Context
 from pymongo import MongoClient
 from pymongo.database import Database
+from redis import Redis
 from sqlalchemy.engine import URL, Engine
 from sqlmodel import create_engine
 
@@ -158,7 +159,7 @@ class ConnectionInterface(EnvironmentInterface):
             **self.dict_schema,
             **self.dict_extra,
         }
-    
+
     @property
     def sqlalchemy_engine(self) -> Engine:
         url = URL.create(
@@ -181,4 +182,11 @@ class ConnectionInterface(EnvironmentInterface):
         )
         return connection.get_database(self.env_schema)
 
+    @property
+    def redis_connection(self) -> Redis:
+        return Redis(
+            host=self.env_host,
+            port=self.env_port,
+            password=self.env_password,
+        )
 
