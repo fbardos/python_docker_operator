@@ -5,7 +5,7 @@ import logging
 import os
 from abc import abstractmethod
 from enum import Enum
-from typing import Any, Dict
+from typing import Any, Dict, Optional
 
 from airflow.models import Connection
 from airflow.utils.context import Context
@@ -21,23 +21,21 @@ class EnvironmentInterface:
     ENV_PREFIX: str
     ENV_DELIMITER = '__'
     _env_middle: str
-    
+
     def env_name(self, variable_name: str) -> str:
         return self.ENV_DELIMITER.join([self.ENV_PREFIX, self._env_middle.upper(), variable_name.upper()])
-    
-    def read_env(self, variable_name: str) -> str:
+
+    def read_env(self, variable_name: str) -> Optional[str]:
         env_name = self.env_name(variable_name)
         logging.debug(f'Looking for environment variable {env_name}')
-        env = os.environ.get(env_name, None)
-        if env:
-            logging.debug(f'Found environment variable {env_name}')
-            return env
-        else:
-            raise ValueError(f'No environment variable {env_name} found')
+        return os.environ.get(env_name, None)
 
     def generate_env(self, variable_name: str, value: Any) -> Dict[str, str]:
         env_name = self.env_name(variable_name)
-        return {env_name: str(value)}
+        if value is None:
+            return {env_name: ''}
+        else:
+            return {env_name: str(value)}
 
 
 class ContextParam(Enum):
@@ -58,11 +56,19 @@ class ContextInterface(EnvironmentInterface):
 
     @property
     def env_data_interval_start(self) -> dt.datetime:
-        return dt.datetime.fromisoformat(self.read_env(ContextParam.DATA_INTERVAL_START.name))
+        value = self.read_env(ContextParam.DATA_INTERVAL_START.name)
+        if value is None:
+            raise ValueError(f'No environment variable {self.env_name(ContextParam.DATA_INTERVAL_START.name)} found')
+        else:
+            return dt.datetime.fromisoformat(value)
 
     @property
     def env_data_interval_end(self) -> dt.datetime:
-        return dt.datetime.fromisoformat(self.read_env(ContextParam.DATA_INTERVAL_END.name))
+        value = self.read_env(ContextParam.DATA_INTERVAL_END.name)
+        if value is None:
+            raise ValueError(f'No environment variable {self.env_name(ContextParam.DATA_INTERVAL_END.name)} found')
+        else:
+            return dt.datetime.fromisoformat(value)
 
     @property
     def dict_data_interval_start(self) -> Dict[str, str]:
@@ -71,7 +77,7 @@ class ContextInterface(EnvironmentInterface):
     @property
     def dict_data_interval_end(self) -> Dict[str, str]:
         return self.generate_env(ContextParam.DATA_INTERVAL_END.name, self._context['data_interval_end'])
-    
+
     def dict_all(self, context: Context) -> Dict[str, str]:
         return {
             **self.with_context(context).dict_data_interval_start,
@@ -102,27 +108,31 @@ class ConnectionInterface(EnvironmentInterface):
         return Connection.get_connection_from_secrets(self.connection_id)
 
     @property
-    def env_host(self) -> str:
+    def env_host(self) -> Optional[str]:
         return self.read_env(ConnectionParam.HOST.name)
 
     @property
-    def env_port(self) -> int:
-        return int(self.read_env(ConnectionParam.PORT.name))
+    def env_port(self) -> Optional[int]:
+        value = self.read_env(ConnectionParam.PORT.name)
+        if value is None:
+            return None
+        else:
+            return int(value)
 
     @property
-    def env_login(self) -> str:
+    def env_login(self) -> Optional[str]:
         return self.read_env(ConnectionParam.LOGIN.name)
 
     @property
-    def env_password(self) -> str:
+    def env_password(self) -> Optional[str]:
         return self.read_env(ConnectionParam.PASSWORD.name)
 
     @property
-    def env_schema(self) -> str:
+    def env_schema(self) -> Optional[str]:
         return self.read_env(ConnectionParam.SCHEMA.name)
 
     @property
-    def env_extra(self) -> str:
+    def env_extra(self) -> Optional[str]:
         return self.read_env(ConnectionParam.EXTRA.name)
 
     @property
