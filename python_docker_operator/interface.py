@@ -7,7 +7,7 @@ from abc import abstractmethod
 from enum import Enum
 from typing import Any, Dict, Optional
 
-from airflow.models import Connection
+from airflow.models import Connection, Variable
 from airflow.utils.context import Context
 from pymongo import MongoClient
 from pymongo.database import Database
@@ -92,6 +92,26 @@ class ConnectionParam(Enum):
     PASSWORD = 'password'
     SCHEMA = 'schema'
     EXTRA = 'extra'
+
+
+class VariableInterface(EnvironmentInterface):
+    ENV_PREFIX = 'AIRFLOW_VAR'
+
+    def __init__(self, variable_name: str):
+        self.variable_name = variable_name
+        self._env_middle = variable_name
+
+    @property
+    def variable(self) -> str:
+        return Variable.get(self.variable_name)
+
+    @property
+    def env_variable(self) -> Optional[str]:
+        return self.read_env(self.variable_name)
+
+    @property
+    def dict_variable(self) -> Dict[str, str]:
+        return self.generate_env(self.variable_name, self.variable)
 
 
 class ConnectionInterface(EnvironmentInterface):

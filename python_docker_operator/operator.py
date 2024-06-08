@@ -3,7 +3,7 @@ from typing import List, Optional
 import datetime as dt
 
 from airflow.providers.docker.operators.docker import DockerOperator
-from python_docker_operator.interface import ConnectionInterface, ContextInterface
+from python_docker_operator.interface import ConnectionInterface, ContextInterface, VariableInterface
 
 
 class PythonDockerOperator(DockerOperator):
@@ -39,6 +39,7 @@ class PythonDockerOperator(DockerOperator):
         custom_file_path: Optional[str] = None,
         custom_cmd_args: Optional[List[str]] = None,
         custom_connection_ids: Optional[List[str]] = None,
+        custom_variables: Optional[List[str]] = None,
         *args, **kwargs
     ):
 
@@ -62,6 +63,12 @@ class PythonDockerOperator(DockerOperator):
                     **kwargs.get('environment', {}),
                     **ConnectionInterface(connection_id).dict_all,
                 }
+        if custom_variables:
+            for variable_id in custom_variables:
+                kwargs['environment'] = {
+                    **kwargs.get('environment', {}),
+                    **VariableInterface(variable_id).dict_variable,
+                }
 
         # Finally, call DockerOperator's __init__ method
         super().__init__(*args, **kwargs)
@@ -77,6 +84,4 @@ class PythonDockerOperator(DockerOperator):
         }
 
         super().execute(context)
-    
-
 
