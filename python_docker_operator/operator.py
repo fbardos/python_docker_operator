@@ -40,6 +40,7 @@ class PythonDockerOperator(DockerOperator):
         custom_cmd_args: Optional[List[str]] = None,
         custom_connection_ids: Optional[List[str]] = None,
         custom_variables: Optional[List[str]] = None,
+        skip_exit_code: int = 99,
         *args, **kwargs
     ):
 
@@ -47,6 +48,7 @@ class PythonDockerOperator(DockerOperator):
         kwargs['auto_remove'] = auto_remove
         kwargs['tty'] = tty
         kwargs['network_mode'] = network_mode
+        kwargs['skip_exit_code'] = skip_exit_code
 
         ### Handling for custom class attributes
         # Prepare command
