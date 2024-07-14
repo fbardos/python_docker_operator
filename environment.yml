@@ -1,0 +1,29 @@
+# Version matching according to PEP-440
+# run: conda env create --file environment.yml
+name: python_docker_operator
+channels:
+  - defaults
+  - conda-forge
+dependencies:
+  - python=3.10
+  - pip
+  - pytest
+  - pymongo
+  - requests
+  - neovim
+  - isort
+  - ipdb
+  - python-dotenv
+  - sqlalchemy==1.4.51
+  - sqlmodel
+  - pydantic<2  # Sqlmodel is currently not compatible with pydantic V2
+  - airflow
+  - apache-airflow-providers-mongo
+  - apache-airflow-providers-postgres
+  - apache-airflow-providers-docker
+  - apache-airflow-providers-airbyte
+  - apache-airflow-providers-amazon
+  - pip:
+    - redis
+    - docker
+
